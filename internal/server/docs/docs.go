@@ -23,6 +23,59 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/alice/webhook": {
+            "post": {
+                "description": "Accepts an Alice Dialogs request and answers a greeting on a new session or an echo on a repeat utterance. Every request must carry the shared secret. The route performs no memory or IoT access.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "alice"
+                ],
+                "summary": "Handle Alice Dialogs request",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Shared secret from ALICE__SHARED_SECRET",
+                        "name": "X-Alice-Secret",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Alice Dialogs request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/alice.WebhookRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/alice.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/alice.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/alice.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/example": {
             "get": {
                 "description": "Returns a greeting message and example value",
@@ -92,49 +145,160 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/webhook": {
-            "post": {
-                "description": "Accepts a raw Telegram webhook update and pushes it into the ingestion pipeline. Polled updates are not sent here, so the route answers 500 while the bot runs in polling mode. The route performs no request authentication.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "webhook"
-                ],
-                "summary": "Handle Telegram update",
-                "parameters": [
-                    {
-                        "description": "Telegram update",
-                        "name": "update",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/webhook.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/webhook.ErrorResponse"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
+        "alice.Application": {
+            "type": "object",
+            "properties": {
+                "application_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "alice.Button": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "alice.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "alice.Meta": {
+            "type": "object",
+            "properties": {
+                "client_id": {
+                    "type": "string"
+                },
+                "locale": {
+                    "type": "string"
+                },
+                "timezone": {
+                    "type": "string"
+                }
+            }
+        },
+        "alice.Response": {
+            "type": "object",
+            "properties": {
+                "response": {
+                    "$ref": "#/definitions/alice.ResponseBody"
+                },
+                "session": {
+                    "$ref": "#/definitions/alice.ResponseSession"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "alice.ResponseBody": {
+            "type": "object",
+            "properties": {
+                "buttons": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/alice.Button"
+                    }
+                },
+                "end_session": {
+                    "type": "boolean"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "tts": {
+                    "type": "string"
+                }
+            }
+        },
+        "alice.ResponseSession": {
+            "type": "object",
+            "properties": {
+                "message_id": {
+                    "type": "integer"
+                },
+                "session_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "alice.Session": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "$ref": "#/definitions/alice.Application"
+                },
+                "message_id": {
+                    "type": "integer"
+                },
+                "new": {
+                    "type": "boolean"
+                },
+                "session_id": {
+                    "type": "string"
+                },
+                "skill_id": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/alice.User"
+                }
+            }
+        },
+        "alice.User": {
+            "type": "object",
+            "properties": {
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "alice.Utterance": {
+            "type": "object",
+            "properties": {
+                "command": {
+                    "type": "string"
+                },
+                "original_utterance": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "alice.WebhookRequest": {
+            "type": "object",
+            "properties": {
+                "meta": {
+                    "$ref": "#/definitions/alice.Meta"
+                },
+                "request": {
+                    "$ref": "#/definitions/alice.Utterance"
+                },
+                "session": {
+                    "$ref": "#/definitions/alice.Session"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
         "example.Request": {
             "type": "object",
             "required": [
@@ -168,22 +332,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "webhook.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string"
-                }
-            }
-        },
-        "webhook.Response": {
-            "type": "object",
-            "properties": {
-                "ok": {
-                    "type": "boolean"
-                }
-            }
         }
     }
 }`
@@ -194,8 +342,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:3000",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "Project API",
-	Description:      "Project API documentation",
+	Title:            "Alice Companion API",
+	Description:      "Alice Companion API documentation",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

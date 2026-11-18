@@ -6,7 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/capcom6/go-project-template/internal/commands"
+	"github.com/capcom6/alice-companion/internal/commands"
 	"github.com/go-core-fx/healthfx"
 	"github.com/samber/lo"
 	"github.com/urfave/cli/v3"
@@ -14,9 +14,9 @@ import (
 
 func Run(version healthfx.Version) {
 	app := &cli.Command{
-		Name:           "go-project-template",
-		Usage:          "Example Go project with HTTP server and Telegram bot",
-		Description:    "Example Go project with HTTP server and Telegram bot",
+		Name:           "alice-companion",
+		Usage:          "Alice Companion service with HTTP server",
+		Description:    "Alice Companion service with HTTP server",
 		Version:        version.Version,
 		DefaultCommand: "serve",
 		Flags:          []cli.Flag{},

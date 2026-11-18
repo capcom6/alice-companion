@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/capcom6/go-project-template/internal/cache"
-	"github.com/capcom6/go-project-template/internal/config"
-	"github.com/capcom6/go-project-template/internal/example"
+	"github.com/capcom6/alice-companion/internal/cache"
+	"github.com/capcom6/alice-companion/internal/config"
+	"github.com/capcom6/alice-companion/internal/example"
 	"github.com/go-core-fx/cachefx"
 	"github.com/go-core-fx/healthfx"
 	"github.com/go-core-fx/logger"
@@ -50,7 +50,6 @@ func run(ctx context.Context) error {
 		// openrouterfx.Module(),
 		// redisfx.Module(),
 		// sqlxfx.Module(),
-		// telegofx.Module(true),
 		// validatorfx.Module(),
 		// watermillfx.Module(),
 		//

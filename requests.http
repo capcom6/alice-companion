@@ -18,3 +18,107 @@ GET {{baseURL}}/health/startup HTTP/1.1
 
 ###
 GET {{baseURL}}/metrics HTTP/1.1
+
+# ============================================================
+# 2. ALICE DIALOGS
+# ============================================================
+#
+# The shared secret comes from ALICE__SHARED_SECRET (env only).
+# Missing or invalid secret -> HTTP 401, the secret is never logged.
+#
+# 401 without the secret header:
+# curl -i -X POST {{baseURL}}/api/v1/alice/webhook \
+#   -H 'Content-Type: application/json' \
+#   -d '{"session":{"message_id":1,"session_id":"s-1","new":true},"request":{"command":""},"version":"1.0"}'
+#
+# Greeting with the secret:
+# curl -i -X POST {{baseURL}}/api/v1/alice/webhook \
+#   -H 'Content-Type: application/json' \
+#   -H 'X-Alice-Secret: change-me' \
+#   -d '{"session":{"message_id":1,"session_id":"s-1","new":true},"request":{"command":""},"version":"1.0"}'
+#
+# Echo on a repeat utterance:
+# curl -i -X POST {{baseURL}}/api/v1/alice/webhook \
+#   -H 'Content-Type: application/json' \
+#   -H 'X-Alice-Secret: change-me' \
+#   -d '{"session":{"message_id":2,"session_id":"s-1","new":false},"request":{"command":"open the door"},"version":"1.0"}'
+
+@aliceSecret=change-me
+
+### Alice webhook - new session greeting
+POST {{baseURL}}/api/v1/alice/webhook HTTP/1.1
+Content-Type: application/json
+X-Alice-Secret: {{aliceSecret}}
+
+{
+  "meta": {
+    "locale": "ru-RU",
+    "timezone": "Europe/Moscow",
+    "client_id": "test-client"
+  },
+  "session": {
+    "message_id": 1,
+    "session_id": "session-1",
+    "skill_id": "skill-1",
+    "user": {
+      "user_id": "user-1"
+    },
+    "application": {
+      "application_id": "app-1"
+    },
+    "new": true
+  },
+  "request": {
+    "command": "",
+    "original_utterance": "",
+    "type": "SimpleUtterance"
+  },
+  "version": "1.0"
+}
+
+### Alice webhook - repeat utterance echo
+POST {{baseURL}}/api/v1/alice/webhook HTTP/1.1
+Content-Type: application/json
+X-Alice-Secret: {{aliceSecret}}
+
+{
+  "meta": {
+    "locale": "ru-RU",
+    "timezone": "Europe/Moscow",
+    "client_id": "test-client"
+  },
+  "session": {
+    "message_id": 2,
+    "session_id": "session-1",
+    "skill_id": "skill-1",
+    "user": {
+      "user_id": "user-1"
+    },
+    "application": {
+      "application_id": "app-1"
+    },
+    "new": false
+  },
+  "request": {
+    "command": "open the door",
+    "original_utterance": "open the door",
+    "type": "SimpleUtterance"
+  },
+  "version": "1.0"
+}
+
+### Alice webhook - missing secret (expects 401)
+POST {{baseURL}}/api/v1/alice/webhook HTTP/1.1
+Content-Type: application/json
+
+{
+  "session": {
+    "message_id": 3,
+    "session_id": "session-1",
+    "new": false
+  },
+  "request": {
+    "command": "open the door"
+  },
+  "version": "1.0"
+}

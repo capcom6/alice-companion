@@ -8,12 +8,12 @@ Two paths:
 
 **Manual** — clone and re-init:
 ```
-git clone git@github.com:capcom6/go-project-template.git <your-project>
+git clone git@github.com:capcom6/alice-companion.git <your-project>
 cd <your-project>
 rm -rf .git
 git init
 git add .
-git commit -m "init from go-project-template"
+git commit -m "init from alice-companion"
 ```
 
 ## Replace Placeholder Values
@@ -22,7 +22,7 @@ Search-and-replace table:
 
 | Find | Replace with |
 |---|---|
-| `github.com/capcom6/go-project-template` | `your/module/path` (in `go.mod`, all `.go` imports) |
+| `github.com/capcom6/alice-companion` | `your/module/path` (in `go.mod`, all `.go` imports) |
 | binary name = dir name | used in `Makefile` `BINARY_NAME`, `.goreleaser.yaml` build |
 
 **`main.go`** — update swagger annotations and contact info:
@@ -114,24 +114,6 @@ fx.Provide(
 
 Handler constructor must return `handler.Handler` — routes register via `h.Register(v1)` which is called automatically.
 
-### Adding Telegram Bot Handlers
-
-```
-internal/bot/handlers/<name>/handler.go
-```
-
-Implement the `bot/handler.Handler` interface:
-```go
-func Register(router *telegofx.Router)
-```
-
-Add to `bot.Module()`:
-```go
-fx.Provide(
-    fx.Annotate(<name>.New, fx.ResultTags(`group:"handlers"`)),
-)
-```
-
 ### Wiring Checklist
 
 After creating files, do all three:
@@ -149,27 +131,20 @@ make air       # live reload, requires `air` CLI: go install github.com/air-vers
 
 CLI usage:
 ```
-make build && ./bin/go-project-template              # default = serve
-./bin/go-project-template serve                      # explicit serve
-./bin/go-project-template example                    # one-shot demo
-./bin/go-project-template --help                     # list commands
+make build && ./bin/alice-companion              # default = serve
+./bin/alice-companion serve                      # explicit serve
+./bin/alice-companion example                    # one-shot demo
+./bin/alice-companion --help                     # list commands
 ```
 
-MySQL/MariaDB required for DB features. Quick start:
-```
-docker run -d --name mariadb \
-  -e MARIADB_USER=example -e MARIADB_PASSWORD=example \
-  -e MARIADB_DATABASE=example -e MARIADB_ROOT_PASSWORD=root \
-  -p 3306:3306 mariadb:11
-```
+SQLite is the default DB backend (pure-Go `modernc.org/sqlite`, no external service required).
+Default DSN: `DATABASE__URL=sqlite://alice-companion.db`.
 
 Config via env vars or YAML:
 ```
 export CONFIG_PATH=./config.local.yaml
 make air
 ```
-
-Telegram bot token required for bot features. Set via `telegram.token` in config; `telegram.proxy_url` (SOCKS5), `telegram.timeout`, and `telegram.mode` configure the transport. Webhook mode serves `POST /api/v1/webhook` (registered manually via the Bot API; no request authentication — see README).
 
 ## Common Gotchas
 
