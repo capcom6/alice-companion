@@ -1,4 +1,4 @@
-# go-project-template — AGENTS.md
+# alice-companion — AGENTS.md
 
 ## Commands
 - `make deps` — go mod download
@@ -16,10 +16,8 @@
 - **CLI**: urfave/cli/v3 in internal/app.go — CLI shell with DefaultCommand "serve"; commands in internal/commands/{serve,example}/
 - **DI**: Fx graphs live in each command (internal/commands/serve/serve.go, internal/commands/example/example.go)
 - **Config**: go-core-fx/config — env vars + optional YAML via CONFIG_PATH env var
-- **HTTP**: Fiber at 127.0.0.1:3000, routes under /api/v1, validation middleware at group level, Telegram webhook receiver at POST /api/v1/webhook (no request authentication)
-- **Telegram**: infra layer in internal/telegram (telego + telegofx) — builds the bot's private HTTP client via httpfx from TELEGRAM__PROXY_URL/TIMEOUT and exports the telegofx options that carry it
-- **Bot**: business logic in internal/bot (handlers registered on the shared telegofx router)
-- **DB**: MySQL/MariaDB via Bun (mysqldialect), Goose migrations in internal/db/migrations/ (//go:embed *.sql)
+- **HTTP**: Fiber at 127.0.0.1:3000, routes under /api/v1, validation middleware at group level
+- **DB**: SQLite via Bun (sqlitedialect) over the pure-Go modernc.org/sqlite driver, Goose migrations in internal/db/migrations/ (//go:embed *.sql)
 - **Metrics**: Prometheus via fiberfx (auto), per-module counters via promauto
 
 ## Module Conventions
@@ -28,7 +26,7 @@
 - Internal-only deps use fx.Private
 - Services with Run(ctx) use `fxutil.RegisterRunnable[*T]()` — conditionally via `withRun` bool
 - Per-module named logger: logger.WithNamedLogger("name")
-- Config module maps raw Config struct to sub-configs for fiberfx, httpfx, telegofx, telegram, sqlfx, openapi, example
+- Config module maps raw Config struct to sub-configs for fiberfx, httpfx, sqlfx, openapi, example
 
 ## Code Generation
 - Swagger docs: go generate ./... (swag init --parseDependency --outputTypes go -g ./main.go -o ./internal/server/docs)
@@ -52,3 +50,8 @@
 - GoReleaser v2 for linux/windows/darwin, CGO_ENABLED=0
 - Go 1.25+
 - Docker images pushed to ghcr.io on PR and release
+
+## Local verification prerequisites
+- `serve` binds with no external token or external database; the Wave 1 SQLite migration removed the legacy external-database prerequisite.
+- `/health/live` checks only goroutines and memory, not any database.
+- `make build` outputs `bin/alice-companion`; `BINARY_NAME` derives from the directory name.

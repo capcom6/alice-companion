@@ -1,7 +1,7 @@
 package example
 
 import (
-	appcache "github.com/capcom6/go-project-template/internal/cache"
+	appcache "github.com/capcom6/alice-companion/internal/cache"
 	"github.com/go-core-fx/cachefx/cache"
 	"github.com/go-core-fx/fxutil"
 	"github.com/go-core-fx/logger"

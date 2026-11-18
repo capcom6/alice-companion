@@ -1,5 +1,5 @@
 // Package cache provides the application cache factory: cachefx's factory
-// scoped to the "go-project-template" prefix.
+// scoped to the "alice-companion" prefix.
 //
 // Caches created through it are swept by the cachefx sweeper, because
 // WithName shares the sweeper's tracker with the root factory.
@@ -22,7 +22,7 @@ func Module() fx.Option {
 		"cache",
 		logger.WithNamedLogger("cache"),
 		fx.Provide(func(factory cachefx.Factory) Factory {
-			return factory.WithName("go-project-template")
+			return factory.WithName("alice-companion")
 		}),
 	)
 }

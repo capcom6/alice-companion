@@ -4,13 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/capcom6/go-project-template/internal/bot"
-	"github.com/capcom6/go-project-template/internal/cache"
-	"github.com/capcom6/go-project-template/internal/config"
-	"github.com/capcom6/go-project-template/internal/db"
-	"github.com/capcom6/go-project-template/internal/example"
-	"github.com/capcom6/go-project-template/internal/server"
-	"github.com/capcom6/go-project-template/internal/telegram"
+	"github.com/capcom6/alice-companion/internal/cache"
+	"github.com/capcom6/alice-companion/internal/config"
+	"github.com/capcom6/alice-companion/internal/db"
+	"github.com/capcom6/alice-companion/internal/example"
+	"github.com/capcom6/alice-companion/internal/server"
 	"github.com/go-core-fx/bunfx"
 	"github.com/go-core-fx/cachefx"
 	"github.com/go-core-fx/fiberfx"
@@ -19,7 +17,6 @@ import (
 	"github.com/go-core-fx/httpfx"
 	"github.com/go-core-fx/logger"
 	"github.com/go-core-fx/sqlfx"
-	"github.com/go-core-fx/telegofx"
 	"github.com/go-core-fx/validatorfx"
 	"github.com/urfave/cli/v3"
 	"go.uber.org/fx"
@@ -30,7 +27,7 @@ import (
 func Command(version healthfx.Version) *cli.Command {
 	return &cli.Command{
 		Name:  "serve",
-		Usage: "Start the HTTP server, Telegram bot, and all services",
+		Usage: "Start the HTTP server and all services",
 		Action: func(ctx context.Context, _ *cli.Command) error {
 			return run(ctx, version)
 		},
@@ -57,20 +54,17 @@ func run(ctx context.Context, version healthfx.Version) error {
 		// redisfx.Module(),
 		sqlfx.Module(),
 		// sqlxfx.Module(),
-		telegofx.Module(telegofx.WithRouter()),
 		validatorfx.Module(),
 		// watermillfx.Module(),
 		//
 		// APP MODULES
 		config.Module(),
 		cache.Module(),
-		telegram.Module(),
 		db.Module(),
 		server.Module(),
 		//
 		// BUSINESS MODULES
 		fx.Supply(version),
-		bot.Module(),
 		example.Module(true),
 
 		fx.Invoke(func(lc fx.Lifecycle, logger *zap.Logger) {

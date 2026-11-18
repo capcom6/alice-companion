@@ -1,14 +1,13 @@
 package config
 
 import (
-	"github.com/capcom6/go-project-template/internal/example"
-	"github.com/capcom6/go-project-template/internal/telegram"
+	"github.com/capcom6/alice-companion/internal/alice"
+	"github.com/capcom6/alice-companion/internal/example"
 	"github.com/go-core-fx/cachefx"
 	"github.com/go-core-fx/fiberfx"
 	"github.com/go-core-fx/fiberfx/openapi"
 	"github.com/go-core-fx/httpfx"
 	"github.com/go-core-fx/sqlfx"
-	"github.com/go-core-fx/telegofx"
 	"go.uber.org/fx"
 )
 
@@ -29,18 +28,6 @@ func Module() fx.Option {
 					Enabled:    cfg.HTTP.OpenAPI.Enabled,
 					PublicHost: cfg.HTTP.OpenAPI.PublicHost,
 					PublicPath: cfg.HTTP.OpenAPI.PublicPath,
-				}
-			},
-			func(cfg Config) telegram.Config {
-				return telegram.Config{
-					ProxyURL: cfg.Telegram.ProxyURL,
-					Timeout:  cfg.Telegram.Timeout,
-				}
-			},
-			func(cfg Config) telegofx.Config {
-				return telegofx.Config{
-					Token: cfg.Telegram.Token,
-					Mode:  cfg.Telegram.Mode,
 				}
 			},
 			func(cfg Config) httpfx.Config {
@@ -74,6 +61,11 @@ func Module() fx.Option {
 				}
 			},
 		),
+		fx.Provide(func(cfg Config) alice.Config {
+			return alice.Config{
+				SharedSecret: cfg.Alice.SharedSecret,
+			}
+		}),
 		fx.Provide(func(cfg Config) example.Config {
 			return example.Config{
 				Example: cfg.Example.Example,
