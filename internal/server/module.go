@@ -1,9 +1,9 @@
 package server
 
 import (
-	"github.com/capcom6/go-project-template/internal/server/docs"
-	"github.com/capcom6/go-project-template/internal/server/handlers/example"
-	"github.com/capcom6/go-project-template/internal/server/handlers/webhook"
+	"github.com/capcom6/alice-companion/internal/server/docs"
+	"github.com/capcom6/alice-companion/internal/server/handlers/alice"
+	"github.com/capcom6/alice-companion/internal/server/handlers/example"
 	"github.com/go-core-fx/fiberfx"
 	"github.com/go-core-fx/fiberfx/handler"
 	"github.com/go-core-fx/fiberfx/health"
@@ -15,19 +15,25 @@ import (
 	"go.uber.org/zap"
 )
 
+func newFiberOptions(log *zap.Logger) fiberfx.Options {
+	opts := fiberfx.Options{}
+	opts.WithFiberConfig(func(cfg *fiber.Config) {
+		cfg.ErrorHandler = fiberfx.NewJSONErrorHandler(log)
+	})
+	opts.WithMetrics()
+	opts.WithRequestLogFields(
+		"requestId", "latency", "status", "method", "path", "ip", "ua", "body", "error",
+	)
+
+	return opts
+}
+
 func Module() fx.Option {
 	return fx.Module(
 		"server",
 		logger.WithNamedLogger("server"),
 
-		fx.Provide(func(log *zap.Logger) fiberfx.Options {
-			opts := fiberfx.Options{}
-			opts.WithFiberConfig(func(cfg *fiber.Config) {
-				cfg.ErrorHandler = fiberfx.NewJSONErrorHandler(log)
-			})
-			opts.WithMetrics()
-			return opts
-		}),
+		fx.Provide(newFiberOptions),
 		fx.Supply(docs.SwaggerInfo),
 
 		fx.Provide(
@@ -37,8 +43,8 @@ func Module() fx.Option {
 		),
 
 		fx.Provide(
+			fx.Annotate(alice.New, fx.ResultTags(`group:"handlers"`)),
 			fx.Annotate(example.New, fx.ResultTags(`group:"handlers"`)),
-			fx.Annotate(webhook.New, fx.ResultTags(`group:"handlers"`)),
 			fx.Private,
 		),
 

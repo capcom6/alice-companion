@@ -1,8 +1,8 @@
-// Golang project template
+// Alice Companion
 //
-//	@title			Project API
+//	@title			Alice Companion API
 //	@version		1.0.0
-//	@description	Project API documentation
+//	@description	Alice Companion API documentation
 //
 //	@contact.name	API Support
 //	@contact.url	https://github.com/capcom6
@@ -19,7 +19,7 @@ import (
 	"runtime"
 	"strconv"
 
-	"github.com/capcom6/go-project-template/internal"
+	"github.com/capcom6/alice-companion/internal"
 	"github.com/go-core-fx/healthfx"
 	"github.com/samber/lo"
 )
