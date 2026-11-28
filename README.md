@@ -11,21 +11,21 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/capcom6/go-project-template">
+  <a href="https://github.com/capcom6/alice-companion">
     <img src="https://raw.githubusercontent.com/golang-samples/gopher-vector/master/gopher.png" alt="Logo" width="120" height="120">
   </a>
 
-<h3 align="center">go-project-template</h3>
+<h3 align="center">alice-companion</h3>
 
   <p align="center">
-    Opinionated Go service template with Fiber API, OpenAPI docs, Telegram bot wiring, health endpoints, and Fx-based modular DI.
+    Opinionated Go service template with Fiber API, OpenAPI docs, health endpoints, and Fx-based modular DI.
     <br />
-    <a href="https://github.com/capcom6/go-project-template"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/capcom6/alice-companion"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/capcom6/go-project-template/issues">Report Bug</a>
+    <a href="https://github.com/capcom6/alice-companion/issues">Report Bug</a>
     ·
-    <a href="https://github.com/capcom6/go-project-template/issues">Request Feature</a>
+    <a href="https://github.com/capcom6/alice-companion/issues">Request Feature</a>
   </p>
 </div>
 
@@ -54,10 +54,9 @@ This repository is a production-oriented starter for backend services in Go. It 
 * HTTP server bootstrapped with Fiber and dependency injection via Uber Fx.
 * Version + health endpoints using `healthfx`.
 * Swagger/OpenAPI docs endpoint under `/api/v1/docs`.
-* Telegram bot integration (`/start` command handler included).
 * Modular business domain example with CLI commands (serve, one-shot tasks).
 
-Use this template when you want a fast path to shipping APIs and bot workflows with a clean module layout.
+Use this template when you want a fast path to shipping APIs with a clean module layout.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -69,7 +68,6 @@ Use this template when you want a fast path to shipping APIs and bot workflows w
 * [![Fx][fx-shield]][fx-url]
 * [![CLI][cli-shield]][cli-url]
 * [![Swagger][swagger-shield]][swagger-url]
-* [![Telegram][telegram-shield]][telegram-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -99,8 +97,8 @@ Follow these steps to run the service locally.
 
 1. Clone the repo.
    ```sh
-   git clone https://github.com/capcom6/go-project-template.git
-   cd go-project-template
+   git clone https://github.com/capcom6/alice-companion.git
+   cd alice-companion
    ```
 2. Download dependencies.
    ```sh
@@ -157,15 +155,8 @@ Configuration:
   ```sh
   export CONFIG_PATH=./config.local.yaml
   ```
-* Telegram is configured via the app config: `telegram.token` is required to use bot handlers, `telegram.proxy_url` (SOCKS5) routes API traffic, `telegram.timeout` bounds each request, and `telegram.mode` selects polling (default) or webhook.
-* The app-wide default HTTP client is configured via `http_client` (`proxy_url`, `bypass`, `timeout`, `max_idle_conns`, `max_idle_conns_per_host`, `idle_conn_timeout`, `tls.*`); unset/zero values inherit the standard library defaults. The bot's own `telegram.proxy_url`/`telegram.timeout` always override it for bot API traffic, so only the idle-pool and TLS settings are shared with the bot client.
-* Webhook mode: `POST /api/v1/webhook` is mounted in every mode and answers 500 while no webhook handler is ready (polling). Register the endpoint with the Bot API once — this template ships no CLI helper for it:
-  ```sh
-  curl -X POST "https://api.telegram.org/bot<TOKEN>/setWebhook" -H 'Content-Type: application/json' -d '{"url":"https://<public-host>/api/v1/webhook","allowed_updates":["message"]}'
-  ```
-  Call the Bot API `deleteWebhook` before switching back to polling.
-
-> **Webhook security.** The webhook route performs **no request authentication**: the `X-Telegram-Bot-Api-Secret-Token` check is not implemented. A caller that reaches the route can submit forged updates. Keep the HTTP server behind a reverse proxy that only forwards Telegram traffic, and prefer the default polling mode.
+* The app-wide default HTTP client is configured via `http_client` (`proxy_url`, `bypass`, `timeout`, `max_idle_conns`, `max_idle_conns_per_host`, `idle_conn_timeout`, `tls.*`); unset/zero values inherit the standard library defaults.
+* The Alice Dialogs webhook is `POST /api/v1/alice/webhook?key=<secret>`, where `<secret>` comes from `ALICE__SHARED_SECRET`. Put the full public HTTPS URL in the skill's **Webhook URL** field, for example `https://<public-host>/api/v1/alice/webhook?key=<secret>`; the default listener, `127.0.0.1:3000`, is not public, so forward HTTPS requests from a public host to it with a reverse proxy or tunnel. An empty secret or a missing or wrong `key` returns 401. Percent-encode the secret when building the URL (for example, `+` becomes `%2B`), or restrict it to unreserved characters; otherwise query parsing changes it and the request returns 401. Request logs record the path, not the full URL, so the key is not written to application logs. Still redact query strings in proxy and access logs.
 
 Quality checks:
 
@@ -185,13 +176,11 @@ make coverage
 
 - [x] Fiber API scaffold
 - [x] OpenAPI + Swagger integration
-- [x] Telegram bot wiring
-- [ ] Telegram webhook secret token validation
 - [ ] Database module integration
 - [ ] Auth middleware and RBAC
 - [ ] CI release pipeline hardening
 
-See the [open issues](https://github.com/capcom6/go-project-template/issues) for a full list of proposed features (and known issues).
+See the [open issues](https://github.com/capcom6/alice-companion/issues) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -229,7 +218,7 @@ Distributed under the Apache 2.0 License. See `LICENSE` for more information.
 
 Maintainer: [@capcom6](https://github.com/capcom6)
 
-Project Link: [https://github.com/capcom6/go-project-template](https://github.com/capcom6/go-project-template)
+Project Link: [https://github.com/capcom6/alice-companion](https://github.com/capcom6/alice-companion)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -241,7 +230,6 @@ Project Link: [https://github.com/capcom6/go-project-template](https://github.co
 * [Best README Template](https://github.com/othneildrew/Best-README-Template)
 * [Go Fiber](https://github.com/gofiber/fiber)
 * [Uber Fx](https://github.com/uber-go/fx)
-* [Telego](https://github.com/mymmrac/telego)
 * [Shields.io](https://shields.io)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -249,16 +237,16 @@ Project Link: [https://github.com/capcom6/go-project-template](https://github.co
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
-[contributors-shield]: https://img.shields.io/github/contributors/capcom6/go-project-template.svg?style=for-the-badge
-[contributors-url]: https://github.com/capcom6/go-project-template/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/capcom6/go-project-template.svg?style=for-the-badge
-[forks-url]: https://github.com/capcom6/go-project-template/network/members
-[stars-shield]: https://img.shields.io/github/stars/capcom6/go-project-template.svg?style=for-the-badge
-[stars-url]: https://github.com/capcom6/go-project-template/stargazers
-[issues-shield]: https://img.shields.io/github/issues/capcom6/go-project-template.svg?style=for-the-badge
-[issues-url]: https://github.com/capcom6/go-project-template/issues
-[license-shield]: https://img.shields.io/github/license/capcom6/go-project-template.svg?style=for-the-badge
-[license-url]: https://github.com/capcom6/go-project-template/blob/master/LICENSE
+[contributors-shield]: https://img.shields.io/github/contributors/capcom6/alice-companion.svg?style=for-the-badge
+[contributors-url]: https://github.com/capcom6/alice-companion/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/capcom6/alice-companion.svg?style=for-the-badge
+[forks-url]: https://github.com/capcom6/alice-companion/network/members
+[stars-shield]: https://img.shields.io/github/stars/capcom6/alice-companion.svg?style=for-the-badge
+[stars-url]: https://github.com/capcom6/alice-companion/stargazers
+[issues-shield]: https://img.shields.io/github/issues/capcom6/alice-companion.svg?style=for-the-badge
+[issues-url]: https://github.com/capcom6/alice-companion/issues
+[license-shield]: https://img.shields.io/github/license/capcom6/alice-companion.svg?style=for-the-badge
+[license-url]: https://github.com/capcom6/alice-companion/blob/master/LICENSE
 [go-shield]: https://img.shields.io/badge/go-1.25%2B-00ADD8?style=for-the-badge&logo=go
 [go-url]: https://go.dev/
 [fiber-shield]: https://img.shields.io/badge/Fiber-v2-00b894?style=for-the-badge
@@ -269,5 +257,3 @@ Project Link: [https://github.com/capcom6/go-project-template](https://github.co
 [cli-url]: https://github.com/urfave/cli
 [swagger-shield]: https://img.shields.io/badge/OpenAPI-Swagger-85EA2D?style=for-the-badge
 [swagger-url]: https://github.com/swaggo/swag
-[telegram-shield]: https://img.shields.io/badge/Telegram-Bot-26A5E4?style=for-the-badge&logo=telegram
-[telegram-url]: https://core.telegram.org/bots

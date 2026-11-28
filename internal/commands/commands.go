@@ -6,8 +6,8 @@
 package commands
 
 import (
-	"github.com/capcom6/go-project-template/internal/commands/example"
-	"github.com/capcom6/go-project-template/internal/commands/serve"
+	"github.com/capcom6/alice-companion/internal/commands/example"
+	"github.com/capcom6/alice-companion/internal/commands/serve"
 	"github.com/go-core-fx/healthfx"
 	"github.com/urfave/cli/v3"
 )
